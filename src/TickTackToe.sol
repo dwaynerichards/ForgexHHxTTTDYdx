@@ -117,20 +117,33 @@ contract TickTackToe {
         require(!game.over, "gameOver");
         require(_isTurn(game), "notTurn");
         //get round, get board,  check position, place position
-        _playRound(game, col, row);
+        _playRound(game, col, row, gameID);
         //check win conditions
         //if winnconditions  meet- update winner, launch new game
         //otherwise change turn
-        emit RoundPlayed(msg.sender, gameID, row, col, _getBoard(game));
         _accessRoundWinner(game, gameID);
         if (!_accessGameWinner(game, gameID)) _startMatch(game);
         games[gameID] = game;
     }
 
+    ///@dev placesPiece, changes turn
+    function _playRound(
+        Game memory game,
+        uint256 col,
+        uint256 row,
+        uint256 gameID
+    ) internal {
+        if (_getRound(game).board.canPlacePiece(row, col)) {
+            _getRound(game).board.placePiece(row, col, msg.sender);
+            emit RoundPlayed(msg.sender, gameID, row, col, _getBoard(game));
+            _changeTurn(game);
+        }
+    }
+
     function _accessRoundWinner(Game memory game, uint256 gameID) internal {
         if (_getRound(game).board.checkWinCondition(msg.sender)) {
             _getRound(game).winner = msg.sender;
-            (game.player1.player == msg.sender)
+            (msg.sender == game.player1.player)
                 ? game.player1.wins++
                 : game.player2.wins++;
             emit RoundWon(msg.sender, gameID, game.round - 1);
@@ -143,29 +156,14 @@ contract TickTackToe {
         internal
         returns (bool)
     {
-        if (game.player1.wins == 2) {
+        if (game.player1.wins == 2 || game.player2.wins == 2) {
             game.over = true;
-            game.winner = (game.player1.player);
-            emit GameWon(game.player1.player, gameID);
-        }
-        if (game.player2.wins == 2) {
-            game.over = true;
-            game.winner = game.player2.player;
-            emit GameWon(game.player1.player, gameID);
+            game.winner = (game.player1.wins == 2)
+                ? game.player1.player
+                : game.player2.player;
+            emit GameWon(game.winner, gameID);
         }
         return game.over;
-    }
-
-    ///@dev placesPiece, changes turn
-    function _playRound(
-        Game memory game,
-        uint256 col,
-        uint256 row
-    ) internal {
-        if (_getRound(game).board.canPlacePiece(row, col)) {
-            _getRound(game).board.placePiece(row, col, msg.sender);
-            _changeTurn(game);
-        }
     }
 
     function _changeTurn(Game memory game) internal pure {

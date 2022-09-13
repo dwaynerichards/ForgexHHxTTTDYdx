@@ -44,7 +44,20 @@ contract Board {
     //cna place pice
     //place pice
     //checkwin conditions
-    function _checkhorizontal(address player) internal returns (bool) {}
+    function _checkhorizontal(address player) internal view returns (bool) {
+        //step though rows, if every row is player return true
+        //every ele is player rturn true
+        for (uint256 row = 0; row < matrix.length; row++) {
+            if (
+                matrix[row][0] == player &&
+                matrix[row][1] == player &&
+                matrix[row][2] == player
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     function _checkVertical(address player) internal returns (bool) {}
 
