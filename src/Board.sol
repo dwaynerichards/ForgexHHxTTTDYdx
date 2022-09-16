@@ -45,8 +45,6 @@ contract Board {
     //place pice
     //checkwin conditions
     function _checkhorizontal(address player) internal view returns (bool) {
-        //step though rows, if every row is player return true
-        //every ele is player rturn true
         for (uint256 row = 0; row < matrix.length; row++) {
             if (
                 matrix[row][0] == player &&
@@ -59,7 +57,18 @@ contract Board {
         return false;
     }
 
-    function _checkVertical(address player) internal returns (bool) {}
+    function _checkDiagnol(address player) internal view returns (bool) {
+        for (uint256 col = 0; col < matrix[col].length; col++) {
+            if (
+                matrix[0][col] == player &&
+                matrix[1][col] == player &&
+                matrix[2][col] == player
+            ) {
+                return true;
+            }
+            return false;
+        }
+    }
 
-    function _checkDiagnol(address player) internal returns (bool) {}
+    function _checkVertical(address player) internal returns (bool) {}
 }
